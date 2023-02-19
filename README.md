@@ -46,7 +46,7 @@ ERIGON_PORT=8545
 
 # Preprocess transactions
 ```
-python mev_detection/preprocess_transaction.py 15540000 15550000
+python mev_detection/preprocess_transactions.py 15540000 15550000
 ```
 - Store transactions in MySQL database
 
