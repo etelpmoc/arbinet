@@ -2,6 +2,8 @@
 
 # Setup
 
-mev-detection-bot requires an **Erigon archive node** with support for traces and receipts
+mev-detection-bot requires
 
-You also need MySQL database to store preprocessed transactions
+#### 1. Erigon archive node with support for traces and receipts
+
+#### 2. MySQL database to store preprocessed transactions
