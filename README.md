@@ -75,3 +75,10 @@ python mev_detection/label_transactions.py 15540000 15550000
 ```
 python mev_detection/train_model.py gat(or gcn or sage)
 ```
+
+# Performance
+| Model  | Train Accuracy | Test Accuracy |
+| ------------- | ------------- | ------------- |
+| GCN  | 0.9965  | 0.9968  |
+| GAT  | 0.9992  | 0.9991  |
+| GraphSage  | 0.9985  | 0.9990  |
