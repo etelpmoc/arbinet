@@ -66,4 +66,12 @@ python mev_detection/preprocess_transactions.py 15540000 15550000
 ```
 - Store transactions in MySQL database
 
+# Label transactions
+```
+python mev_detection/label_transactions.py 15540000 15550000
+```
 
+# Train model
+```
+python mev_detection/train_model.py gat(or gcn or sage)
+```
