@@ -10,6 +10,22 @@ mev-detection-bot requires
 
 #### 2. MySQL database to store preprocessed transactions
 
+# Environment
+- Ubuntu 20.04.5 LTS
+- Pytorch 1.13.1 cpu
+- Anaconda 4.10.3
+
+To install torch and torch_geometric, install them with following command
+```
+# torch cpu
+pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cpu
+
+# torch geometric
+pip install pyg-lib torch-scatter torch-sparse torch-cluster torch-spline-conv torch-geometric -f https://data.pyg.org/whl/torch-1.13.0+cpu.html
+
+```
+
+
 # Setup
 
 1. Clone git project
