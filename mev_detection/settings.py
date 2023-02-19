@@ -1,5 +1,5 @@
-DB_HOST="localhost"
-DB_USER="slcf"
-DB_PASSWORD="Bltai1801!"
-DB_NAME="Ethereum"
+DB_HOST=""
+DB_USER=""
+DB_PASSWORD=""
+DB_NAME=""
 PORT_NUM=8545
