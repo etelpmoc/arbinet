@@ -1,8 +1,11 @@
-import settings
+from settings import *
+import sys
 import json
 import requests
 import mysql.connector
-
+from web3 import Web3
+import warnings
+warnings.filterwarnings('ignore')
 # Connect to Erigon archive node
 w3 = Web3(Web3.HTTPProvider(f"""http://localhost:{PORT_NUM}"""))
 
@@ -46,8 +49,8 @@ def get_erc20_transfer(transfer_logs) -> list:
         erc20_transfer.append([log['args']['src'].lower(), log['args']['dst'].lower(), log['args']['wad'], log['address']]) 
     return erc20_transfer
 
-def update_tx_pp(start,end):
-    sql = f"""INSERT IGNORE INTO transactions_preprocessed (Transaction_Hash, Total_Transfer, Block_Number) VALUES (%s,%s,%s)"""
+def update_tx_pp(start,end, table):
+    sql = f"""INSERT IGNORE INTO {table} (Transaction_Hash, Total_Transfer, Block_Number) VALUES (%s,%s,%s)"""
     rows = []
     for blockNum in range(start, end):
         block = w3.eth.getBlock(blockNum)
@@ -86,8 +89,28 @@ if __name__ == "__main__":
       host=DB_HOST,
       user=DB_USER,
       password=DB_PASSWORD,
-      database = DB_NAME
     )
     mycursor = mydb.cursor()
-    update_tx_pp(start,end)
+    try:
+        mycursor.execute(f"CREATE DATABASE {DB_NAME}")
+    except:
+        pass
+    
+    mydb = mysql.connector.connect(
+      host=DB_HOST,
+      user=DB_USER,
+      password=DB_PASSWORD,
+      database=DB_NAME
+    )
+    mycursor = mydb.cursor()
+    try:
+        mycursor.execute(f"""CREATE TABLE transactions_preprocessed (
+Transaction_Hash varchar(255) NOT NULL,
+Total_Transfer json DEFAULT NULL,
+Block_Number int NOT NULL,
+PRIMARY KEY (Transaction_Hash)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci""")
+    except:
+        pass
 
+    update_tx_pp(start,end, table)
