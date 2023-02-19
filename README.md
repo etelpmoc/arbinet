@@ -40,7 +40,8 @@ DB_HOST="~~"
 DB_USER="~~"
 DB_PASSWORD="~~"
 DB_NAME="~~"
-PORT_NUM=8545
+ERIGON_HOST="~~"
+ERIGON_PORT=8545
 ```
 
 # Preprocess transactions
