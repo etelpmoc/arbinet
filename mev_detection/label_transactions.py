@@ -1,8 +1,13 @@
 from settings import *
 from web3 import Web3
-import setting 
+import json
+import os
+import sys
+import settings 
 import requests
 import mysql.connector
+import warnings
+warnings.filterwarnings('ignore')
 
 # Global debug flag
 debug = 0
@@ -25,7 +30,7 @@ nulladdr = "0x0000000000000000000000000000000000000000"
 swap_contract_list = []
 event_name_list    = []
 for file in os.listdir("abis/token_exchange"):
-    with open(DATA_PATH + f"abi_swap/{file}") as f:
+    with open(f"abis/token_exchange/{file}") as f:
         json_file   = json.loads(f.read())
         address = json_file['address']
         ABI     = json_file['abi']
@@ -560,7 +565,6 @@ def update_mev_db(start, end, table):
         transactions = mycursor.fetchall()
         print(blockNum)
         rows = []
-        t1 = time.time()
         for data in transactions:
             tx = data[0]
             total_transfer = json.loads(data[1])
@@ -590,11 +594,14 @@ if __name__ == "__main__":
       database = DB_NAME 
     )
     mycursor = mydb.cursor()
-    mycursor.execute(f"""CREATE TABLE {table}(
+    try:
+        mycursor.execute(f"""CREATE TABLE {table}(
 Block_Number int NOT NULL,
 Transaction_Hash varchar(255) NOT NULL,
 MEV_Bot_Address json DEFAULT NULL,
 PRIMARY KEY (Transaction_Hash)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci""")
+    except:
+        pass
     update_mev_db(start, end, table)
 

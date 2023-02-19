@@ -7,7 +7,7 @@ from web3 import Web3
 import warnings
 warnings.filterwarnings('ignore')
 # Connect to Erigon archive node
-w3 = Web3(Web3.HTTPProvider(f"""http://localhost:{PORT_NUM}"""))
+w3 = Web3(Web3.HTTPProvider(f"""http://localhost:{ERIGON_PORT}"""))
 
 # Open Wrapped Ether json file
 with open("abis/WETH.json") as f:
@@ -19,7 +19,7 @@ with open("abis/WETH.json") as f:
 wethContract = w3.eth.contract(address = wethAddress, abi = wethABI)
                                  
 def get_internal_transfer(tx) -> list:
-    r = requests.post(f"http://localhost:{PORT_NUM}/",\
+    r = requests.post(f"http://localhost:{ERIGON_PORT}/",\
                       json =  {"method":"trace_transaction","params":[tx],"id":1,"jsonrpc":"2.0"},\
                      )
     traces = json.loads(r.text)['result']

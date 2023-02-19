@@ -1,11 +1,17 @@
 import pymysql
 import random
+import sys
+from web3 import Web3
+from settings import *
+from sqlalchemy import create_engine
+import pandas as pd
 import torch
+import json
 from torch_geometric.data import Data
 from torch_geometric.loader import DataLoader
 from torch.nn import Linear
 import torch.nn.functional as F
-from torch_geometric.nn import GCNConv, GATConv, GATv2Conv, SAGEConv
+from torch_geometric.nn import GCNConv, GATv2Conv, SAGEConv
 from torch_geometric.nn import global_mean_pool 
 
 def add_features(total_transfer, tx, from_addr, to_addr, blockNum):
@@ -112,7 +118,7 @@ def add_features(total_transfer, tx, from_addr, to_addr, blockNum):
     return data
 
 class GNN(torch.nn.Module):
-    def __init__(self, hidden_channels):
+    def __init__(self, layer, hidden_channels):
         super(GNN, self).__init__()
         torch.manual_seed(12345)
         if layer == "gcn":
@@ -185,13 +191,15 @@ def test(loader, debug=0):
     return correct / len(loader.dataset) 
 
 if __name__ == "__main__":
-    layer = int(sys.argv[1])
-    assert(layer in ["gcn, gat, sage"], "layer input must be gcn or gat or sage")
+    w3 = Web3(Web3.HTTPProvider(f"""http://localhost:{ERIGON_PORT}"""))
+    layer = sys.argv[1]
+    print(layer)
+    assert(layer in ["gcn", "gat", "sage"])
     
     # Connect to DB
-    db_connection_str = f"""mysql+pymysql://{DB_USER}:{DB_PASSWORD}@localhost/Ethereum"""
+    db_connection_str = f"""mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/Ethereum"""
     db_connection = create_engine(db_connection_str)
-    start = 15540000
+    start = 15537300
     end = 15550000
 
     transactions  = pd.read_sql(f'SELECT * FROM transactions_preprocessed WHERE Block_Number >= {start} and Block_Number <= {end}', con=db_connection)
@@ -246,7 +254,7 @@ if __name__ == "__main__":
     test_loader = DataLoader(data_list[train_data_size:], batch_size=256, shuffle=False) 
 
 
-    model = GNN(hidden_channels=512, layer)
+    model = GNN(layer="gat",hidden_channels=512)
     print(model)
     optimizer = torch.optim.Adam(model.parameters(), lr=0.0001, weight_decay=0)
     criterion = torch.nn.CrossEntropyLoss()
