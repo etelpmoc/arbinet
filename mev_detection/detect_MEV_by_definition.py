@@ -1,3 +1,5 @@
+from settings import *
+from web3 import Web3
 import setting 
 import requests
 import mysql.connector
@@ -6,7 +8,7 @@ import mysql.connector
 debug = 0
 
 # Connect to Erigon archive node
-w3 = Web3(Web3.HTTPProvider(f"""http://localhost:{PORT_NUM}"""))
+w3 = Web3(Web3.HTTPProvider(f"""http://{ERIGON_HOST}:{ERIGON_PORT}"""))
 
 # Open Wrapped Ether json file
 with open("abis/WETH.json") as f:
@@ -181,7 +183,7 @@ def check_loops(tx, total_transfer = None):
     swap_addresses = [swap['address'].lower() for swap in total_swaps]
     
     # Function call
-    r = requests.post(f"http://localhost:{PORT_NUM}/",json =  {"method":"trace_transaction","params":[tx],"id":1,"jsonrpc":"2.0"})
+    r = requests.post(f"http://{ERIGON_HOST}:{ERIGON_PORT}/",json =  {"method":"trace_transaction","params":[tx],"id":1,"jsonrpc":"2.0"})
     traces = json.loads(r.text)['result']
 
     for trace in traces:
@@ -552,7 +554,7 @@ def check_if_trivial(token, val, tokens, amounts):
     return is_trivial
 
 def update_mev_db(start, end, table):
-    sql = f"""INSERT IGNORE INTO {table} (Block_Number, Transaction_Hash, MEV_Bot_Address, Total_Profit, Profit_ETH, Profit_USD, Profit_BTC, Private_Tip, Priority_Fee) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
+    sql = f"""INSERT IGNORE INTO {table} (Block_Number, Transaction_Hash, MEV_Bot_Address) VALUES (%s,%s,%s)"""
     for blockNum in range(start, end, 5):
         mycursor.execute(f"SELECT Transaction_Hash, Total_Transfer FROM transactions_preprocessed where Block_Number >= {blockNum} and Block_Number < {blockNum+5}")
         transactions = mycursor.fetchall()
@@ -567,7 +569,7 @@ def update_mev_db(start, end, table):
             _, mev_takers = beg_mev(tx,total_transfer)
             if not mev_takers:
                 continue
-            row = (blockNum, tx, json.dumps(mev_takers),0,0,0,0,0,0)
+            row = (blockNum, tx, json.dumps(mev_takers))
             rows.append(row)
         mycursor.executemany(sql,rows)
 
@@ -582,12 +584,17 @@ if __name__ == "__main__":
     
     # Connect to MySQL server 
     mydb = mysql.connector.connect(
-      host="localhost",
+      host=DB_HOST,
       user=DB_USER,
       password=DB_PASSWORD,
-      database = "Ethereum"
+      database = DB_NAME 
     )
     mycursor = mydb.cursor()
-#     mycursor.execute(f"CREATE TABLE {table} LIKE definedMEV3;")
+    mycursor.execute(f"""CREATE TABLE {table}(
+Block_Number int NOT NULL,
+Transaction_Hash varchar(255) NOT NULL,
+MEV_Bot_Address json DEFAULT NULL,
+PRIMARY KEY (Transaction_Hash)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci""")
     update_mev_db(start, end, table)
 
