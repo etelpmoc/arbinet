@@ -516,7 +516,7 @@ def cal_profit(nodes, tokens, amounts):
                 profit[nodes[i][0]][tokens[i][-1]] = amounts[i][-1]      
     return profit
 
-def beg_mev(tx, total_transfer = None, debug_flag=0):
+def label_mev(tx, total_transfer = None, debug_flag=0):
     global debug
     debug = debug_flag
     nodes, tokens, amounts, additional_profit_all = check_loops(tx, total_transfer)
@@ -561,7 +561,7 @@ def check_if_trivial(token, val, tokens, amounts):
 def update_mev_db(start, end, table):
     sql = f"""INSERT IGNORE INTO {table} (Block_Number, Transaction_Hash, MEV_Bot_Address) VALUES (%s,%s,%s)"""
     for blockNum in range(start, end, 5):
-        mycursor.execute(f"SELECT Transaction_Hash, Total_Transfer FROM transactions_preprocessed where Block_Number >= {blockNum} and Block_Number < {blockNum+5}")
+        mycursor.execute(f"SELECT Transaction_Hash, Total_Transfer, Block_NumberFROM transactions_preprocessed where Block_Number >= {blockNum} and Block_Number < {blockNum+5}")
         transactions = mycursor.fetchall()
         print(blockNum)
         rows = []
@@ -570,10 +570,10 @@ def update_mev_db(start, end, table):
             total_transfer = json.loads(data[1])
             print(tx)
             
-            _, mev_takers = beg_mev(tx,total_transfer)
+            _, mev_takers = label_mev(tx,total_transfer)
             if not mev_takers:
                 continue
-            row = (blockNum, tx, json.dumps(mev_takers))
+            row = (data[2], tx, json.dumps(mev_takers))
             rows.append(row)
         mycursor.executemany(sql,rows)
 
