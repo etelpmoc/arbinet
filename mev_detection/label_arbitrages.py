@@ -1030,7 +1030,7 @@ if __name__ == "__main__":
     host=DB_HOST,
     user=DB_USER,
     password=DB_PASSWORD,
-    database="Ethereum")
+    database=DB_NAME)
 
     mycursor = mydb.cursor()
 

@@ -6,4 +6,4 @@ if __name__ == "__main__":
         f.write("""DB_NAME='MEV'\n""")
         f.write("""ERIGON_HOST=''\n""")
         f.write("""ERIGON_PORT=8545\n""")
-        
+    
