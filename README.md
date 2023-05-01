@@ -1,14 +1,16 @@
 # ArbiNet
 
-This project is supported by Ethereum Grants Program. A paper will be published soon.
+ArbiNet is the MEV detection model that doesn't require knowledge about DeFi smart contracts. 
 
 # Requirements
 
-mev-detection-bot requires
+ArbiNet requires :
 
 #### 1. Erigon archive node with support for traces and receipts
 
-#### 2. MySQL database to store preprocessed transactions
+#### 2. (Not Necessary) MySQL database to store preprocessed transactions. 
+- MySQL is only needed when you want to generate training data and test data from scratch. 
+- Train and test data is provided in mev-detection/pretrain_models/
 
 # Environment
 - Ubuntu 20.04.5 LTS
@@ -25,12 +27,11 @@ pip install pyg-lib torch-scatter torch-sparse torch-cluster torch-spline-conv t
 
 ```
 
-
 # Setup
 
 1. Clone git project
 ```
-git clone https://github.com/etelpmoc/mev-detection-bot.git
+git clone https://github.com/etelpmoc/arbinet.git
 ```
 
 2. Make conda environement
