@@ -18,7 +18,10 @@ if __name__ == "__main__":
 
     try:
         mycursor.execute(f"CREATE TABLE MEV.`labeled_arbitrages` (`block` int DEFAULT NULL,`tx_hash` varchar(70) NOT NULL,`taker_address` varchar(45) DEFAULT NULL, `platforms` json DEFAULT NULL,PRIMARY KEY (`tx_hash`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci")
-    
     except:
         pass
-
+    
+    try:
+        mycursor.execute(f"CREATE TABLE MEV.`preprocessed_tx_1500` (`tx_hash` varchar(70) NOT NULL,`total_transfer` json DEFAULT NULL,`block` int DEFAULT NULL,`tx_index` int DEFAULT NULL,`from_address` varchar(45) DEFAULT NULL,`to_address` varchar(45) DEFAULT NULL,PRIMARY KEY (`tx_hash`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci")
+    except:
+        pass
