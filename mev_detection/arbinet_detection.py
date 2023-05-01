@@ -1,6 +1,7 @@
 import torch
 from gnn import *
 from preprocess_transactions import *
+from sandwich_detection import *
 
 # Connect to Erigon archive node
 w3 = Web3(Web3.HTTPProvider(f"""http://localhost:{ERIGON_PORT}"""))
@@ -140,9 +141,8 @@ def test_single_tx(data, mod, debug=0):
     if pred.item() == 1:
         return True
 
-def detect_mev(block, model, debug=1):
+def detect_arbitrage(blockNum, model):
     model.eval()
-    if debug: print(f"""Inspecting Block #{blockNum}..🤔""")
     block = w3.eth.getBlock(blockNum)
     transactions = block['transactions']
     builder = block['miner'].lower()
@@ -167,31 +167,45 @@ def detect_mev(block, model, debug=1):
             continue
             
         if test_single_tx(data, model):
-            if debug : 
-                print(tx, "Arbitrage Found")
             arbitrages.append(tx)
 
-    return set(arbitrages), len(transactions)
+    return arbitrages
 
-if __name__ == "__main__":
-    layer = "SAGE"
+def detect_mev(start, end, layer=None):
+    if layer is None : layer = "SAGE" # Default layer : SAGE
 
-    model = GraphSAGE(14, hidden_channels=512)
+    if layer == "GAT":
+        model = GAT(14, hidden_channels=512)
+    if layer == "GCN":
+        model = GCN(14, hidden_channels=512)
+    if layer == "SAGE":
+        model = GraphSAGE(14, hidden_channels=512)
 
     # Load pretrained model
     filename = f"pretrained_models/{layer}.pkl"
     model.load_state_dict(torch.load(filename))
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.0001, weight_decay=0)
-    criterion = torch.nn.CrossEntropyLoss(torch.tensor([1, 1], dtype=torch.float))
-    
+
+    for blockNum in range(start, end):
+        print(f"""\nInspecting Block #{blockNum}..🤔""")
+        sandwiches = detect_sandwich(blockNum)
+        arbitrages = set(detect_arbitrage(blockNum, model)) - set([tx[1] for tx in sandwiches])
+
+        if sandwiches:
+            print("Sandwiches")
+            for i in range(0,int(len(sandwiches)/2),2):
+                print(f"-> Frontrun : {sandwiches[i][1]},\n-> Backrun  : {sandwiches[i+1][1]}")
+        if arbitrages:
+            print("Arbitrages")
+            for tx in arbitrages:
+                print(f"-> {tx}")
+
+if __name__ == "__main__":
     if len(sys.argv) == 2:
-        blockNum = int(sys.argv[1])
-        arbitrages, _ = detect_mev(blockNum, model, debug=1)
+        start = int(sys.argv[1])
+        end   = start + 1
 
     if len(sys.argv) == 3:
         start = int(sys.argv[1])
         end   = int(sys.argv[2])
-
-        for blockNum in range(start, end):
-            arbitrages, _ = detect_mev(blockNum, model, debug=1)
-
+    
+    detect_mev(start,end, layer=None)
