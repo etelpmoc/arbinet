@@ -131,3 +131,6 @@ dmypy.json
 # etc
 .DS_store
 settings.py
+
+# data
+.pt
