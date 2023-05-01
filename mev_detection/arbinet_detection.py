@@ -175,8 +175,6 @@ def detect_mev(block, model, debug=1):
 
 if __name__ == "__main__":
     layer = "SAGE"
-    start = int(sys.argv[1])
-    end   = int(sys.argv[2])
 
     model = GraphSAGE(14, hidden_channels=512)
 
@@ -186,6 +184,14 @@ if __name__ == "__main__":
     optimizer = torch.optim.Adam(model.parameters(), lr=0.0001, weight_decay=0)
     criterion = torch.nn.CrossEntropyLoss(torch.tensor([1, 1], dtype=torch.float))
     
-    for blockNum in range(start, end):
+    if len(sys.argv) == 2:
+        blockNum = int(sys.argv[1])
         arbitrages, _ = detect_mev(blockNum, model, debug=1)
+
+    if len(sys.argv) == 3:
+        start = int(sys.argv[1])
+        end   = int(sys.argv[2])
+
+        for blockNum in range(start, end):
+            arbitrages, _ = detect_mev(blockNum, model, debug=1)
 

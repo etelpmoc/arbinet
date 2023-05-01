@@ -1,6 +1,6 @@
 from gnn import * 
 import sys
-
+'''
 def train(mod, loader, optimizer, criterion,debug=0):
     mod.train()
     for data in loader:  
@@ -66,7 +66,7 @@ def test(mod, loader, debug=0):
         print(f"""FN : {FN}, TN : {TN}""")
         
     return correct / len(loader.dataset) , precision, recall, f1
-
+'''
 if __name__ == "__main__":
     layer = sys.argv[1]
 

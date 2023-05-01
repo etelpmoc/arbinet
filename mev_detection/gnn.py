@@ -102,3 +102,53 @@ class GraphSAGE(torch.nn.Module):
         x = self.lin2(x)
         return x
 
+def train(mod, loader, optimizer, criterion,debug=0):
+    mod.train()
+    for data in loader:  
+        optimizer.zero_grad()
+        out = mod(data.x, data.edge_index, data.edge_weight, data.batch)
+        
+        pred = out.argmax(dim=1)
+        if pred.size(0) != data.y.size(0):
+            continue
+        if debug:
+            for idx in np.where(torch.eq(pred,data.y)==False)[0]:
+                print(pred[idx], data.tx[idx],data.y[idx])
+        loss = criterion(out, data.y)  
+        loss.backward()
+        optimizer.step()
+
+def test(mod, loader, debug=0):
+    mod.eval()
+    correct = 0
+    
+    TP = 0
+    FP = 0
+    FN = 0
+    TN = 0
+    
+    for data in loader: 
+        out = mod(data.x, data.edge_index, data.edge_weight, data.batch)  
+        pred = out.argmax(dim=1) 
+        if pred.size(0) != data.y.size(0):
+            continue
+        
+        positive_class = 1
+        TP += ((pred == positive_class) & (data.y == positive_class)).sum().item()
+        FP += ((pred == positive_class) & (data.y != positive_class)).sum().item()
+        FN += ((pred != positive_class) & (data.y == positive_class)).sum().item()
+        TN += ((pred != positive_class) & (data.y != positive_class)).sum().item()
+        
+        if debug:
+            for idx in np.where(torch.eq(pred,data.y)==False)[0]:
+                print("wrong",pred[idx], data.tx[idx],data.y[idx])
+        correct += int((pred == data.y).sum())  
+    if debug: 
+        print(len(loader.dataset)-correct, " wrong classifcation out of total :", len(loader.dataset))
+    
+    # Calculate precision, recall, and F1-score for the positive class
+    if TP + FP > 0:
+        precision = TP / (TP + FP)
+    else:
+        precision = 0
+
