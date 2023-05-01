@@ -1,4 +1,4 @@
-# mev-detection-bot
+# ArbiNet
 
 This project is supported by Ethereum Grants Program. A paper will be published soon.
 
