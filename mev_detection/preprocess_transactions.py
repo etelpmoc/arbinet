@@ -4,6 +4,7 @@ import json
 import requests
 from web3 import Web3
 import warnings
+import pymysql
 from concurrent.futures import ThreadPoolExecutor
 warnings.filterwarnings('ignore')
 # Connect to Erigon archive node
@@ -74,8 +75,7 @@ def preprocess_transaction(tx, blockNum):
         return None
     return (tx, json.dumps(total_transfer), blockNum, receipt['transactionIndex'], receipt['from'], receipt['to'])
 
-def update_tx_pp(start, end, table):
-    t1 = time.time()
+def update_tx_pp(start, end):
     with ThreadPoolExecutor(max_workers=2) as executor:
         for blockNum in range(start, end):
             block = w3.eth.getBlock(blockNum)
@@ -83,41 +83,24 @@ def update_tx_pp(start, end, table):
 
             rows = list(filter(None, executor.map(lambda tx: preprocess_transaction(tx.hex(), blockNum), transactions)))
 
-            mycursor.executemany(f"""INSERT IGNORE INTO {table}_{str(blockNum)[:2]}00 (tx_hash, total_transfer, block, tx_index, from_address, to_address) VALUES (%s,%s,%s,%s,%s,%s)""", rows)
+            mycursor.executemany(f"""INSERT IGNORE INTO preprocessed_tx_{str(blockNum)[:2]}00 (tx_hash, total_transfer, block, tx_index, from_address, to_address) VALUES (%s,%s,%s,%s,%s,%s)""", rows)
 
             if blockNum % 100 == 0 or blockNum == end-1:
                 print(blockNum)
                 mydb.commit()
                 
-                print(time.time()-t1)
-                t1=time.time()
 
 if __name__ == "__main__":
-    table = "preprocessed_tx"
     start = int(sys.argv[1])
     end   = int(sys.argv[2])
     
     # Connect to MySQL server 
     mydb = pymysql.connect(
-    host="localhost",
+    host=DB_HOST,
     user=DB_USER,
     password=DB_PASSWORD,
-    database="Ethereum")
+    database=DB_NAME)
 
     mycursor = mydb.cursor()
-    try:
-        mycursor.execute(f"CREATE DATABASE {DB_NAME}")
-    except:
-        pass
 
-    try:
-        mycursor.execute(f"""CREATE TABLE transactions_preprocessed (
-Transaction_Hash varchar(255) NOT NULL,
-Total_Transfer json DEFAULT NULL,
-Block_Number int NOT NULL,
-PRIMARY KEY (Transaction_Hash)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci""")
-    except:
-        pass
-
-    update_tx_pp(start,end, table)
+    update_tx_pp(start,end)
