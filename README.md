@@ -107,28 +107,28 @@ Inspecting blocks from 17000000 to 17000010
 To train ArbiNet in your own, you should get train data and test data from our open Dropbox cloud. (110MB each)
 
 You can download data by 
-'''
+```
 cd mev_detection
 python download_dataset.py
-'''
+```
 You can see train_dataset.pt, test_dataset.pt in pretrained_models/ .
 Or you can download manually from our [google drive folder](https://drive.google.com/drive/folders/1M36tcAqObNo1gPzJ5_Z_QtNrqprj6V1s?usp=sharing).
 
 To get data, simply train model with
 
-'''
+```
 python train_arbinet.py GAT
-'''
+```
 Supported GNN layers are GAT, GCN, GraphSAGE. 
 
 To change parameter settings, you can modify train_arbinet.py.
 For example, in train_arbinet.py
-'''
+```
 ~~
 optimizer = torch.optim.Adam(model.parameters(), lr=0.0001, weight_decay=0)
 criterion = torch.nn.CrossEntropyLoss(torch.tensor([1, 1], dtype=torch.float))
 ~~
-'''
+```
 Modify learning rate, optimizer, loss functions, weight decay, and so on.
 
 To change layers, modify gnn.py. Add or remove layers, change number of hidden states, pooling layer, and so on.
@@ -143,15 +143,37 @@ class GAT(torch.nn.Module):
         self.conv2 = GATv2Conv(hidden_channels, hidden_channels)
 ...
 ```
-
-### Constructing training dataset and test dataset from scratch
-
-To construct 
+Your models will be saved in custom_models/ .
 
 
+To test model performance,
+```
+python test_arbinet.py
+```
 
+### 3. Constructing training dataset and test dataset from scratch
 
+To construct dataset, first make empty databases and tables
+```
+cd mev_detection
+python create_db.py
+```
 
+Add arbitrages and sandwicihes to database
+```
+python label_arbitrages.py 15500000 15900000
+```
+This might take a few hours to a few days depending on your I/O, node speed, CPU performance.
+
+```
+python label_sandwich.py 15500000 15900000
+```
+
+Add token transfer data to database (which will be used for graph construction)
+
+```
+python preprocess_transactions.py 15500000 15590000
+```
 
 
 
