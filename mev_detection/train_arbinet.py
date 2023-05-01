@@ -1,4 +1,5 @@
 from gnn import * 
+import sys
 
 def train(mod, loader, optimizer, criterion,debug=0):
     mod.train()
@@ -67,25 +68,36 @@ def test(mod, loader, debug=0):
     return correct / len(loader.dataset) , precision, recall, f1
 
 if __name__ == "__main__":
-    train_dataset           = torch.load('pretrained_models/train_dataset.pt')
-    test_dataset_unbalanced = torch.load('pretrained_models/test_dataset.pt')
+    layer = sys.argv[1]
 
+    train_dataset = torch.load('pretrained_models/train_dataset.pt')
+    test_dataset  = torch.load('pretrained_models/test_dataset.pt')
+   
+    # train_dataset : 91393, test_dataset : 96484 
+    # To train fast with low performance, you can load data with smaller data
+    # e.g. train_dataset[:20000],  test_dataset[:20000]
     train_loader = DataLoader(train_dataset, batch_size=256, shuffle=True)
-    test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False)
-
-    model = GAT(new_train_dataset[0].x.shape[1], hidden_channels=512)
+    test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False)    
+    
+    if layer == "GAT":
+        model = GAT(14, hidden_channels=512)
+    elif layer == "GCN":
+        model = GCN(14, hidden_channels=512)
+    elif layer == "SAGE":
+        model = GraphSAGE(14, hidden_channels=512)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=0.0001, weight_decay=0)
     criterion = torch.nn.CrossEntropyLoss(torch.tensor([1, 1], dtype=torch.float))
     
     max_f1 = 0
     for epoch in range(1,41):
+        print(f"Epoch {epoch} starts")
         train(model, train_loader, optimizer, criterion)
         train_acc,_,_,_ = test(model,train_loader,0)       
         test_acc, precision, recall, f1 = test(model, test_loader,0)
         print(f'Epoch: {epoch:03d}, Train Acc: {train_acc:.4f}, Test Acc: {test_acc:.4f}')
 
-        if f1 > max_f1:
+        if f1 > max_f1 and epoch >= 5:
             max_f1 = f1
             # Save model and results
             torch.save(model.state_dict(), f"custom_models/{model}.pkl")

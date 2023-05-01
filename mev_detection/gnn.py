@@ -1,4 +1,5 @@
 import torch
+from torch_geometric.loader import DataLoader
 from torch.nn import Linear
 from torch_geometric.nn import GCNConv, GATv2Conv, SAGEConv 
 from torch_geometric.nn import global_mean_pool

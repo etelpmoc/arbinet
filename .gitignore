@@ -133,4 +133,4 @@ dmypy.json
 settings.py
 
 # data
-.pt
+*.pt
