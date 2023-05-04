@@ -178,10 +178,12 @@ python preprocess_transactions.py 15500000 15590000
 
 
 
+(Train : 15540000 ~ 15585000 balanced data)
+(Test  : 15585000 ~ 15590000 unbalanced data which is actual block data)
 
 # Performance
-| Model  | Train Accuracy | Test Accuracy |
+| Model  | Train F1 | Test F1 |
 | ------------- | ------------- | ------------- |
-| GCN  | 0.9965  | 0.9968  |
-| GAT  | 0.9992  | 0.9991  |
-| GraphSage  | 0.9985  | 0.9990  |
+| GCN  | 0.9934  | 0.9659  |
+| GAT  | 0.9974  | 0.9805  |
+| GraphSage  | 0.9956  | 0.9814  |
