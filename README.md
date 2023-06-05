@@ -47,13 +47,12 @@ conda create -n mev python=3.7.11
 
 3. Install packages
 ```
-cd mev-detection-bot
 pip install -r requirements.txt
 ```
 
 4. Initialize (for configuring Erigon Archive node and MySQL DB)
 ```
-python mev-detection-bot/initialize.py
+python mev_detection/initialize.py
 ```
 
 5. Enter your DB info and edit port number of Erigon node if necessary 
