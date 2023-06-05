@@ -53,7 +53,7 @@ pip install -r requirements.txt
 
 4. Initialize (for configuring Erigon Archive node and MySQL DB)
 ```
-python arbinet/initialize.py
+python mev-detection-bot/initialize.py
 ```
 
 5. Enter your DB info and edit port number of Erigon node if necessary 
