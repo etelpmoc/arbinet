@@ -52,6 +52,7 @@ pip install -r requirements.txt
 
 4. Initialize (for configuring Erigon Archive node and MySQL DB)
 ```
+cd mev_detection
 python mev_detection/initialize.py
 ```
 
