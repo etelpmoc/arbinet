@@ -6,7 +6,9 @@ We trained our model using the block #15,540,000 ~ # 15,585,000 , with our own l
 
 All stuffs are open : Pretrained GNN-based model (.pkl files) , training/test dataset, code for training model, code for labeling MEV.
 
-**(Updated) + All labeled MEV transactions data will be open in a few weeks!**
+**(Updated)**
+
+The labeled dataset is accessible online through the link : https://drive.google.com/drive/u/0/folders/1M36tcAqObNo1gPzJ5_Z_QtNrqprj6V1s.
 
 ## Citation
 
